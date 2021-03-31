@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <title>Book Shelf Original</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link rel="stylesheet" href="main.css">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+  <!-- 最初のローディング表示 -->
+  <section id="loading" class="view">
+    <i class="initial-loading-icon fas fa-sync" aria-hidden="true"></i>
+  </section>
+  <!-- /#loading -->
+
+  <!-- ログイン画面 -->
+  <section id="login" class="view">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-sm-10 col-md-8 col-lg-6">
+          <form id="login-form">
+            <div class="form-group login__email">
+              <label for="login-email" class="col-form-label">
+                メールアドレス
+              </label>
+              <div>
+                <input id="login-email" type="email" class="form-control" required>
+              </div>
+            </div>
+            <div class="form-group login__password">
+              <label for="login-password" class="col-form-label">
+                パスワード
+              </label>
+              <div>
+                <input id="login-password" type="password" class="form-control" required>
+              </div>
+            </div>
+            <div id="login__help" class="alert alert-danger"></div>
+            <div class="form-group login__submit">
+              <div>
+                <button id="login__submit-button" type="submit" class="btn btn-success">
+                  ログイン
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /#login -->
+
+  <!-- 書籍一覧画面 -->
+  <section id="bookshelf" class="view">
+    <header>
+      <div id="header">
+        <div id="logo">
+          <!-- <a href="./bookshelf_index.php" -->
+          <a href="./index.html">
+            <h2>BookShelf</h2>
+          </a>
+        </div>
+        <a href="#add-book-modal" data-toggle="modal" class="add-button">
+          <i class="fas fa-plus-circle" aria-hidden="true"></i>
+          書籍の登録
+        </a>
+        <button class="btn btn-primary logout-button">
+          ログアウト
+        </button>
+      </div>
+    </header>
+    <div id="cover">
+      <h1 id="cover__title">Your Bookshelf</h1>
+    </div>
+    <div class="wrapper">
+      <div id="main">
+        <div id="book-list" class="clearfix"></div>
+      </div>
+    </div>
+  </section>
+  <!-- /#bookshelf -->
+
+  <div id="book-template">
+    <!-- 書籍のテンプレート -->
+    <div class="book-item">
+      <div class="book-item__image-wrapper">
+        <img class="book-item__image" alt="">
+      </div>
+      <div class="book-item__detail">
+        <div class="book-item__title"></div>
+        <div class="book-item__author"></div>
+        <div class="book-item__delete-wrapper">
+          <button class="btn btn-danger book-item__delete">
+            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+            削除
+          </button>
+        </div>
+      </div>
+    </div>
+    <!-- /.book-item -->
+  </div>
+
+  <!-- 書籍情報追加モーダル -->
+
+  <div id="add-book-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Book Search</h4>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body m-1">
+          <div class="container" id="app">
+            <p> ISBN：
+              <form v-on:submit.prevent="getResult(query)" id="book-form">
+                <input type="text" placeholder="isbn" v-model="query" /></p>
+            <div class="book_wrapper">
+              <div class="book_card" v-for="item in items">
+
+
+                <div class="row no-gutters">
+                  <div class="col-md-4">
+                    <img class="card-img" v-bind:src="item.volumeInfo.imageLinks.thumbnail" />
+                  </div>
+
+                  <div class="col-md-8">
+                    <div class="card-body">
+                      <h5 class="card-title">{{item.volumeInfo.title}}</h5>
+                      <p class="card-text card-author">{{item.volumeInfo.authors}}</p>
+                      <p class="card-text"><small class="text-muted">{{item.volumeInfo.publisher}}</small></p>
+                    </div>
+                    <button id="submit_add_book" type="submit" class="btn btn-default btn-success btn-block book_button">
+    　                 保存する
+          　         </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Firebaseのセットアップコード（下記のSDKのバージョンは6.2.0） -->
+  <!-- The core Firebase JS SDK is always required and must be listed first 
+    (中心となるFirebase SDKです。常に必要で、最初に記述する必要があります) -->
+  <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-app.js"></script>
+
+  <!-- TODO: Add SDKs for Firebase products that you want to use
+         https://firebase.google.com/docs/web/setup#config-web-app
+        (使いたいFirebaseサービス用のSDKを加えます) -->
+  <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/6.2.0/firebase-storage.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_fviSb7jkVzN3vuZAajXmm1vL-F0jM1I",
+      authDomain: "realtime-chat-fb18b.firebaseapp.com",
+      databaseURL: "https://realtime-chat-fb18b.firebaseio.com",
+      projectId: 'realtime-chat-fb18b',
+      storageBucket: "realtime-chat-fb18b.appspot.com",
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+  <!-- Popper.js, 次に Bootstrap JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+  <!-- Font Awesome -->
+  <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+  <script src="main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios@0.17.1/dist/axios.min.js"></script>
+</body>
+
+</html>
